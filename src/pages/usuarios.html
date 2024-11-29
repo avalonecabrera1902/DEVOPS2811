@@ -12,7 +12,6 @@
     <thead>
       <tr>
         <th>Email</th>
-        <th>Ações</th>
       </tr>
     </thead>
     <tbody>
@@ -26,6 +25,13 @@
     <input type="email" id="newEmail" placeholder="Digite o email" required>
     <input type="password" id="newPassword" placeholder="Digite a senha" required>
     <button type="submit">Adicionar Usuário</button>
+  </form>
+
+  <form id="editUserForm" style="display:none;">
+    <h3>Editar Usuário</h3>
+    <input type="email" id="editEmail" placeholder="Digite o novo email" required>
+    <input type="password" id="editPassword" placeholder="Digite a nova senha" required>
+    <button type="submit">Salvar Alterações</button>
   </form>
 
   <button id="logoutButton">Sair</button>

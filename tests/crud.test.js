@@ -18,14 +18,19 @@ beforeEach(() => {
   };
 });
 
-// Funções auxiliares para manipular o LocalStorage
-const getUsersFromStorage = () => JSON.parse(localStorage.getItem("users")) || [];
-const saveUsersToStorage = (users) => localStorage.setItem("users", JSON.stringify(users));
+function saveUsersToStorage(users) {
+  localStorage.setItem('users', JSON.stringify(users));
+}
+
+function loadUsersFromStorage() {
+  const usersJSON = localStorage.getItem('users');
+  return usersJSON ? JSON.parse(usersJSON) : [];
+}
 
 describe("CRUD de Usuários", () => {
   test("Deve cadastrar um novo usuário", () => {
     const newUser = { email: "teste@teste.com", password: "123456" };
-    const users = getUsersFromStorage();
+    const users = loadUsersFromStorage();
 
     users.push(newUser);
     saveUsersToStorage(users);
@@ -90,4 +95,25 @@ describe("CRUD de Usuários", () => {
 
     expect(password).toBe(confirmPassword);
   });
+
+  test("Deve atualizar um usuário existente", () => {
+    const users = [
+      { email: "teste1@teste.com", password: "123456" },
+      { email: "teste2@teste.com", password: "789123" }
+    ];
+    saveUsersToStorage(users);
+
+    const updatedUser = { email: "teste2@teste.com", password: "novaSenha123" };
+    const userIndex = users.findIndex(user => user.email === updatedUser.email);
+
+    // Atualiza o usuário
+    if (userIndex !== -1) {
+      users[userIndex] = updatedUser;
+      saveUsersToStorage(users);
+    }
+
+    const updatedUsers = loadUsersFromStorage();
+    expect(updatedUsers[userIndex]).toEqual(updatedUser);
+  });
+
 });

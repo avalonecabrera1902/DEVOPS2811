@@ -352,3 +352,29 @@
           width: 90%;
         }
       }
+
+/* Estilo para o botão de editar */
+.edit-button {
+  background-color: #4CAF50; /* Verde */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Estilo para o botão de excluir */
+.delete-button {
+  background-color: #f44336; /* Vermelho */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* Estilo para os botões na célula de ações */
+#usersTable td {
+  display: flex;
+  gap: 10px;
+}

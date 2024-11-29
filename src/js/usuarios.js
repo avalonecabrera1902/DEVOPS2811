@@ -1,69 +1,74 @@
-document.addEventListener("DOMContentLoaded", function () {
-  init();
+let currentUserIndex = null;
 
-  document.getElementById("addUserForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    handleAddUser();
-  });
-
-  document.getElementById("logoutButton").addEventListener("click", handleLogout);
-});
-
-// Inicializa a aplicação
-function init() {
-  renderUsers();
-}
-
-// Renderiza a tabela de usuários
+// Função para renderizar os usuários na tabela
 function renderUsers() {
-  const users = getUsersFromStorage();
-  const usersTableBody = document.querySelector("#usersTable tbody");
-  usersTableBody.innerHTML = "";
+  const usersTable = document.getElementById('usersTable').getElementsByTagName('tbody')[0];
+  usersTable.innerHTML = '';
+  const users = loadUsersFromStorage(); // Certifique-se de que esta função está implementada
 
   users.forEach((user, index) => {
-    const row = usersTableBody.insertRow();
-    row.innerHTML = `
-      <td>${user.email}</td>
-      <td>
-        <button onclick="handleDeleteUser(${index})">Excluir</button>
-      </td>
-    `;
+    const row = usersTable.insertRow();
+    row.insertCell(0).textContent = user.email;
+    const actionsCell = row.insertCell(1);
+
+    // Botão de editar
+    const editButton = document.createElement('button');
+    editButton.textContent = 'Editar';
+    editButton.className = 'edit-button';
+    editButton.addEventListener('click', () => {
+      currentUserIndex = index;
+      document.getElementById('editEmail').value = user.email;
+      document.getElementById('editPassword').value = user.password;
+      document.getElementById('editUserForm').style.display = 'block';
+    });
+    actionsCell.appendChild(editButton);
+
+    // Botão de excluir
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Excluir';
+    deleteButton.className = 'delete-button';
+    deleteButton.addEventListener('click', () => handleDeleteUser(index));
+    actionsCell.appendChild(deleteButton);
+
+    // Coloca os botões lado a lado
+    actionsCell.style.display = 'flex';
+    actionsCell.style.gap = '10px';
   });
 }
 
-// Recupera usuários do localStorage
-function getUsersFromStorage() {
-  return JSON.parse(localStorage.getItem("users")) || [];
+// Função para carregar os usuários do armazenamento
+function loadUsersFromStorage() {
+  const usersJSON = localStorage.getItem('users');
+  return usersJSON ? JSON.parse(usersJSON) : [];
 }
 
-// Salva usuários no localStorage
+// Função para salvar os usuários no armazenamento
 function saveUsersToStorage(users) {
-  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem('users', JSON.stringify(users));
 }
 
-// Adiciona um novo usuário
-function handleAddUser() {
-  const email = document.getElementById("newEmail").value.trim();
-  const password = document.getElementById("newPassword").value;
-
-  if (!email || !password) {
-    displayMessage("Preencha todos os campos!", "error");
-    return;
-  }
-
-  const users = getUsersFromStorage();
-  users.push({ email, password });
+// Função para adicionar um novo usuário
+function addUser(newUser) {
+  const users = loadUsersFromStorage();
+  users.push(newUser);
   saveUsersToStorage(users);
-
   renderUsers();
   displayMessage("Usuário adicionado com sucesso!", "success");
-  document.getElementById("addUserForm").reset(); // Limpa o formulário
 }
 
-// Exclui um usuário pelo índice
+// Função para editar um usuário
+function editUser(index, newUserData) {
+  const users = loadUsersFromStorage();
+  users[index] = newUserData;
+  saveUsersToStorage(users);
+  renderUsers();
+  displayMessage("Usuário editado com sucesso!", "success");
+}
+
+// Função para excluir um usuário
 function handleDeleteUser(index) {
   if (confirm("Tem certeza que deseja excluir este usuário?")) {
-    const users = getUsersFromStorage();
+    const users = loadUsersFromStorage();
     users.splice(index, 1);
     saveUsersToStorage(users);
     renderUsers();
@@ -71,13 +76,7 @@ function handleDeleteUser(index) {
   }
 }
 
-// Realiza logout
-function handleLogout() {
-  localStorage.removeItem("loggedInUser");
-  window.location.href = "login.html";
-}
-
-// Exibe mensagens de feedback
+// Função para exibir mensagens de feedback
 function displayMessage(message, type) {
   const messageDiv = document.getElementById("message");
   messageDiv.style.display = "block";
@@ -89,3 +88,30 @@ function displayMessage(message, type) {
     messageDiv.style.display = "none";
   }, 3000);
 }
+
+// Inicializa a renderização dos usuários ao carregar a página
+document.addEventListener('DOMContentLoaded', () => {
+  renderUsers();
+
+  const addUserForm = document.getElementById('addUserForm');
+  addUserForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const newUser = {
+      email: document.getElementById('newEmail').value,
+      password: document.getElementById('newPassword').value
+    };
+    addUser(newUser);
+    addUserForm.reset();
+  });
+
+  const editUserForm = document.getElementById('editUserForm');
+  editUserForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const newUserData = {
+      email: document.getElementById('editEmail').value,
+      password: document.getElementById('editPassword').value
+    };
+    editUser(currentUserIndex, newUserData);
+    editUserForm.style.display = 'none';
+  });
+});
